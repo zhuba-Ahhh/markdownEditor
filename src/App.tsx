@@ -1,48 +1,54 @@
-import React, { useState } from "react";
+import React, { FC, useState } from "react";
 import "./App.css";
 import Tinymce from "./Views/Tinymce";
 import Lexical from "./Views/Lexical";
+import Tiptap from "./Views/Tiptap";
 
 function App() {
-  const [showTinymce, setShowTinymce] = useState(true);
-  const [showLexical, setShowLexical] = useState(true);
-  const [showDraft, setShowDraft] = useState(true);
+  const [editors, setEditors] = useState<{
+    [key in string]: boolean;
+  }>({
+    Tinymce: true,
+    Lexical: true,
+    Tiptap: true,
+  });
+
+  const toggleEditor = (editor: string) => {
+    setEditors((prev) => ({ ...prev, [editor]: !prev[editor] }));
+  };
+
+  const EditorButton = ({ name }: { name: string }) => (
+    <button
+      onClick={() => toggleEditor(name)}
+      className={editors[name] ? "show" : ""}
+    >
+      {editors[name] ? `Hide ${name}` : `Show ${name}`}
+    </button>
+  );
+
+  const EditorSection = ({
+    name,
+    Component,
+  }: {
+    name: string;
+    Component: FC;
+  }) => (
+    <div className={editors[name] ? "show" : "hidden"}>
+      <Component />
+    </div>
+  );
 
   return (
-    <div className="App">
+    <>
       <div className="buttontoolbar">
-        <button
-          onClick={() => setShowTinymce(!showTinymce)}
-          className={showTinymce ? "show" : ""}
-        >
-          {showTinymce ? "Hide Tinymce" : "Show Tinymce"}
-        </button>
-        <button
-          onClick={() => setShowLexical(!showLexical)}
-          className={showLexical ? "show" : ""}
-        >
-          {showLexical ? "Hide Lexical" : "Show Lexical"}
-        </button>
-        <button
-          onClick={() => setShowDraft(!showLexical)}
-          className={showDraft ? "show" : ""}
-        >
-          {showDraft ? "Hide Draft" : "Show Draft"}
-        </button>
+        <EditorButton name="Tinymce" />
+        <EditorButton name="Lexical" />
+        <EditorButton name="Tiptap" />
       </div>
-      <div className="editor">
-        <div
-          className={showTinymce ? "show" : "hidden"}
-          style={{ width: "800px" }}
-        >
-          <Tinymce />
-        </div>
-        <div className={showLexical ? "show" : "hidden"}>
-          <Lexical />
-        </div>
-        {/* <div className={showDraft ? "show" : "hidden"}></div> */}
-      </div>
-    </div>
+      <EditorSection name="Tinymce" Component={Tinymce} />
+      <EditorSection name="Lexical" Component={Lexical} />
+      <EditorSection name="Tiptap" Component={Tiptap} />
+    </>
   );
 }
 
